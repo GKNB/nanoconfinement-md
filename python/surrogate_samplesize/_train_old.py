@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import os
 import argparse
 import numpy as np
@@ -35,20 +37,17 @@ def preprocess_inputdata(all_data):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--iter",            required=True, type=int, help='The iteraion number of this execution (zero-index)')
-    parser.add_argument("--instance",        required=True, type=int, help='The instance id of this training within each pipeline (zero-index)')
     parser.add_argument('--data_dir',        required=True, help='Directory containing .pk files')
-    parser.add_argument('--pipeline_dir',    required=True, help='Directory of this specific pipeline')
+    parser.add_argument('--model_dir',       required=True, help='Directory to save model and outputs')
+    parser.add_argument('--exclude_num',     type=int, default=0, help='Number of training samples to exclude')
     parser.add_argument('--split_fraction',  type=float, default=0.8, help='Train/validation split fraction')
     parser.add_argument('--seed',            type=int, default=1, help='Random seed')
     parser.add_argument('--batch_size',      type=int, default=32, help='Batch size')
     parser.add_argument('--epochs',          type=int, default=200, help='Number of epochs')
     args = parser.parse_args()
 
-    os.environ['PYTHONHASHSEED'] = str(args.seed)
-    random.seed(args.seed)
-    np.random.seed(args.seed)
-    tf.random.set_seed(args.seed)
+    # Create output directory
+    os.makedirs(args.model_dir, exist_ok=True)
 
     # Load data dumps
     train_pk = os.path.join(args.data_dir, 'data_dump_density_preprocessed_train.pk')
@@ -58,12 +57,12 @@ def main():
     with open(test_pk, 'rb') as f:
         raw_test  = pickle.load(f)
 
-    index_file = os.path.join(args.pipeline_dir, "index.npy")
-    include_idx = np.load(index_file).astype(int)
-    print("include_idx = \n", include_idx)
-
+    # Optionally exclude random samples
+    np.random.seed(0)
     keys = list(raw_train.keys())
-    train_data = { keys[i]: raw_train[keys[i]] for i in include_idx }
+    exclude_idxs = np.random.choice(len(keys), args.exclude_num, replace=False)
+    include_idxs = np.delete(np.arange(len(keys)), exclude_idxs)
+    train_data = { keys[i]: raw_train[keys[i]] for i in include_idxs }
 
     # Preprocess
     x_all, y_all, err_all, z_all = preprocess_inputdata(train_data)
@@ -119,9 +118,9 @@ def main():
     )
 
     # Save model
-    model_file = os.path.join(args.pipeline_dir, "model", f'my_model_iter_{args.iter}_instance_{args.instance}.h5')
-    model.save(model_file)
-    print(f"Model saved to {model_file}")
+    model_path = os.path.join(args.model_dir, 'my_model.h5')
+    model.save(model_path)
+    print(f"Model saved to {model_path}")
 
     # Plot loss
     plt.figure()
@@ -132,13 +131,12 @@ def main():
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.legend()
-
-    loss_file = os.path.join(args.pipeline_dir, "loss", f'loss_iter_{args.iter}_instance_{args.instance}.png')
-    plt.savefig(loss_file)
-    print(f"Loss curve saved to {loss_file}")
+    loss_png = os.path.join(args.model_dir, 'loss.png')
+    plt.savefig(loss_png)
+    print(f"Loss curve saved to {loss_png}")
 
     # Load and show summary of saved model
-    new_model = tf.keras.models.load_model(model_file, compile=False)
+    new_model = tf.keras.models.load_model(model_path, compile=False)
     new_model.summary()
 
 if __name__ == '__main__':

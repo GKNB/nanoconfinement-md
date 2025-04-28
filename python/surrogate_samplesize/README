@@ -1,0 +1,56 @@
+# AL is Random selection
+
+from rose import Task
+from rose import ResourceEngine
+from rose.learners import ParallelActiveLearn
+
+
+engine = ResourceEngine('resources':'local.localhost'})
+al = ParallelActiveLearn(engine=)
+
+
+@al.simulation
+def simulation(*args):
+  return Task(executable='simulation.py', gpus='1', pre_exec=['conda activate env'])
+
+
+@al.active_learn
+def active_learing(*args):
+  return Task(executable='active_learning.py', gpus='1', pre_exec=['conda activate env'])
+
+@al.training
+def training(*args):
+  return Task(executable='pre_processing.py', gpus='1', pre_exec=['conda activate env'])
+
+seed_1 --> pipeline_1 (rng for active_learning) --> train_11, train_12, train_13
+
+
+seed_2 --> pipeline_2 (rng for active_learning) --> train_21, train_22, train_23
+
+
+seed_3 --> pipeline_3 (rng for active_learning) --> train_31, train_32, train_33
+
+train_ij means the j-th training task within i-th pipeline (use dataset_i, but with seed j to test robustness of randomness in training) 
+
+
+@al.as_async
+def pipeline(s):
+  for i in range(12):
+    simulate = simulation()
+    training = training(simulate)
+    active_learn = active_learning(training, simulate)
+    active_learn.result()
+  
+  
+pipelines = []
+seeds = [1, 2, 4]
+  
+for s in sesds:
+  p = pipeline(s)
+  pipelines.append(p)
+
+  
+[p.result() for p in pipelines]
+
+teach()
+
