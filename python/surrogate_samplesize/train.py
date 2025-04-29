@@ -1,5 +1,8 @@
 import os
+import random
 import argparse
+from datetime import datetime
+from pprint import pprint
 import numpy as np
 import tensorflow as tf
 import joblib
@@ -34,6 +37,8 @@ def preprocess_inputdata(all_data):
     return input_arr, output_arr, errors_arr, z_arr
 
 def main():
+    now = datetime.now()
+    print("Start training at ", now.strftime("%Y-%m-%d %H:%M:%S"))
     parser = argparse.ArgumentParser()
     parser.add_argument("--iter",            required=True, type=int, help='The iteraion number of this execution (zero-index)')
     parser.add_argument("--instance",        required=True, type=int, help='The instance id of this training within each pipeline (zero-index)')
@@ -44,6 +49,8 @@ def main():
     parser.add_argument('--batch_size',      type=int, default=32, help='Batch size')
     parser.add_argument('--epochs',          type=int, default=200, help='Number of epochs')
     args = parser.parse_args()
+    print("Doing training with args = \n")
+    pprint(vars(args))
 
     os.environ['PYTHONHASHSEED'] = str(args.seed)
     random.seed(args.seed)
@@ -141,6 +148,11 @@ def main():
     new_model = tf.keras.models.load_model(model_file, compile=False)
     new_model.summary()
 
+    now = datetime.now()
+    print("Ending training at ", now.strftime("%Y-%m-%d %H:%M:%S"))
+
+
 if __name__ == '__main__':
+    np.set_printoptions(threshold=5000)
     main()
 

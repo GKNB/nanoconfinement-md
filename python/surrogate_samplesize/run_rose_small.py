@@ -9,8 +9,8 @@ engine = ResourceEngine({'resource': 'anl.polaris',
                          'runtime' : 600, 
                          'access_schema':'interactive',
                          'project' : "RECUP",
-                         'cores'   : 128, 
-                         'gpus'    : 16})
+                         'cores'   : 32, 
+                         'gpus'    : 4})
 
 learner = ActiveLearner(engine=engine)
 code_path = f'{sys.executable} {os.getcwd()}'
@@ -21,10 +21,10 @@ DATA_DIR="/eagle/RECUP/twang/rose/nanoconfinement/nanoconfinement-md/python/surr
 NEW_SAMPLE_SIZE_LIST=[150,50,50,50,50,50,50,50,50,500,500,500,500,500,500]
 MAX_ITER=len(NEW_SAMPLE_SIZE_LIST)
 EPOCHS=20000
-NUM_TRAIN=4
+NUM_TRAIN=1
 NUM_PIPELINE=4
 SEED=42
-EXP_DIR="/eagle/RECUP/twang/rose/nanoconfinement/nanoconfinement-md/python/surrogate_samplesize/exp"
+EXP_DIR="/eagle/RECUP/twang/rose/nanoconfinement/nanoconfinement-md/python/surrogate_samplesize/exp_small"
 
 @learner.training_task
 def training(*args, iter_id, instance_id, data_dir, pipeline_dir, epochs, seed):

@@ -2,8 +2,13 @@ import numpy as np
 import os
 import pickle
 import argparse
+from datetime import datetime
+from pprint import pprint
+
 
 def main():
+    now = datetime.now()
+    print("Start active learning at ", now.strftime("%Y-%m-%d %H:%M:%S"))
     parser = argparse.ArgumentParser()
     parser.add_argument("--iter", required=True, type=int)
     parser.add_argument("--seed", required=True, type=int)
@@ -11,6 +16,8 @@ def main():
     parser.add_argument("--data_dir", required=True)
     parser.add_argument("--new_sample_size", required=True, type=int)
     args = parser.parse_args()
+    print("Doing active learning with args = \n")
+    pprint(vars(args))
 
     np.random.seed(args.seed)
 
@@ -33,5 +40,10 @@ def main():
     np.save(index_file, final_include_idx)
     print(final_include_idx)
 
+    now = datetime.now()
+    print("Ending active learning at ", now.strftime("%Y-%m-%d %H:%M:%S"))
+
+
 if __name__ == "__main__":
+    np.set_printoptions(threshold=5000)
     main()

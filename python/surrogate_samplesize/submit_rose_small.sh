@@ -1,9 +1,9 @@
 #!/bin/bash
-#PBS -l select=4:system=polaris
+#PBS -l select=1:system=polaris
 #PBS -l place=scatter
 #PBS -N rose
-#PBS -o pbs.rose.out
-#PBS -e pbs.rose.err
+#PBS -o pbs.rose.small.out
+#PBS -e pbs.rose.small.err
 #PBS -q preemptable
 #PBS -l walltime=10:00:00
 #PBS -A RECUP
@@ -20,4 +20,4 @@ export RADICAL_PROFILE="TRUE"
 export RADICAL_REPORT="TRUE"
 export RADICAL_LOG_LVL="DEBUG"
 
-python /eagle/RECUP/twang/rose/nanoconfinement/nanoconfinement-md/python/surrogate_samplesize/run_rose.py
+python /eagle/RECUP/twang/rose/nanoconfinement/nanoconfinement-md/python/surrogate_samplesize/run_rose_small.py
